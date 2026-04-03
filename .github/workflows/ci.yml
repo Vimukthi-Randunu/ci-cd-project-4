@@ -61,7 +61,9 @@ jobs:
         script: |
           docker pull ${{ secrets.DOCKER_USERNAME }}/flask-app:${{ github.sha }}
           docker stop flask-app-container || true
+          docker rm flask-app-container || true
           docker run -d --name flask-app-container -p 5000:5000 ${{ secrets.DOCKER_USERNAME }}/flask-app:${{ github.sha }}
+          
 
     - name: Health check
       run: |
@@ -75,7 +77,9 @@ jobs:
         host: ${{ secrets.EC2_HOST }}
         username: ubuntu
         key: ${{ secrets.EC2_SSH_PRIVATE_KEY_CICDPROJECT4 }}
-        envs: PREV_SHA=${{ env.PREV_SHA }}
+        envs: PREV_SHA
         script: |
           docker stop flask-app-container || true
-          docker run -d --name flask-app-container -p 5000:5000 ${{ secrets.DOCKER_USERNAME }}/flask-app:${{ env.PREV_SHA }}
+          docker rm flask-app-container || true
+          docker run -d --name flask-app-container -p 5000:5000 ${{ secrets.DOCKER_USERNAME }}/flask-app:$PREV_SHA
+      
